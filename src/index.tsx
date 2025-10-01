@@ -1,22 +1,37 @@
 import { createRoot } from 'react-dom/client';
 import { StrictMode, CSSProperties, useState } from 'react';
-import clsx from 'clsx';
 
 import { Article } from 'components/article';
 import { ArticleParamsForm } from 'components/article-params-form';
-import { defaultArticleState } from './constants/articleProps';
+import {
+	ArticleStateType,
+	defaultArticleState,
+} from './constants/articleProps';
 
 import './styles/index.scss';
 import styles from './styles/index.module.scss';
+import clsx from 'clsx';
 
 const domNode = document.getElementById('root') as HTMLDivElement;
 const root = createRoot(domNode);
 
 const App = () => {
-	const [isSidebarOpen, setIsSidebarOpen] = useState(true); // TODO: вернуть false
+	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+	const [articleState, setArticleState] =
+		useState<ArticleStateType>(defaultArticleState);
 
 	const toggleSidebar = () => {
 		setIsSidebarOpen((prevState) => !prevState);
+	};
+
+	const handleSubmit = (articleState: ArticleStateType) => {
+		setArticleState(articleState);
+		setIsSidebarOpen(false);
+	};
+
+	const handleReset = () => {
+		setArticleState(defaultArticleState);
+		setIsSidebarOpen(false);
 	};
 
 	return (
@@ -24,14 +39,19 @@ const App = () => {
 			className={clsx(styles.main)}
 			style={
 				{
-					'--font-family': defaultArticleState.fontFamilyOption.value,
-					'--font-size': defaultArticleState.fontSizeOption.value,
-					'--font-color': defaultArticleState.fontColor.value,
-					'--container-width': defaultArticleState.contentWidth.value,
-					'--bg-color': defaultArticleState.backgroundColor.value,
+					'--font-family': articleState.fontFamilyOption.value,
+					'--font-size': articleState.fontSizeOption.value,
+					'--font-color': articleState.fontColor.value,
+					'--container-width': articleState.contentWidth.value,
+					'--bg-color': articleState.backgroundColor.value,
 				} as CSSProperties
 			}>
-			<ArticleParamsForm isOpen={isSidebarOpen} onToggle={toggleSidebar} />
+			<ArticleParamsForm
+				isOpen={isSidebarOpen}
+				onToggle={toggleSidebar}
+				onSubmit={handleSubmit}
+				onReset={handleReset}
+			/>
 			<Article />
 		</main>
 	);
