@@ -20,20 +20,18 @@ import styles from './ArticleParamsForm.module.scss';
 import clsx from 'clsx';
 
 type ArticleParamsFormProps = {
-	isOpen: boolean;
-	onToggle: () => void;
 	onSubmit: (articleState: ArticleStateType) => void;
 	onReset: () => void;
 };
 
 export const ArticleParamsForm = ({
-	isOpen,
-	onToggle,
 	onSubmit,
 	onReset,
 }: ArticleParamsFormProps) => {
-	const sidebarRef = useRef<HTMLDivElement>(null);
-	const [formParams, setFormParams] =
+	const root = useRef<HTMLDivElement>(null);
+
+	const [isOpen, setIsOpen] = useState(false);
+	const [formSettings, setFormSettings] =
 		useState<ArticleStateType>(defaultArticleState);
 
 	useEffect(() => {
@@ -41,8 +39,8 @@ export const ArticleParamsForm = ({
 
 		const handleClick = (event: MouseEvent) => {
 			const target = event.target;
-			if (target instanceof Node && !sidebarRef.current?.contains(target)) {
-				onToggle();
+			if (target instanceof Node && !root.current?.contains(target)) {
+				setIsOpen(false);
 			}
 		};
 
@@ -53,28 +51,34 @@ export const ArticleParamsForm = ({
 		};
 	}, [isOpen]);
 
+	const onToggle = () => {
+		setIsOpen((prevState) => !prevState);
+	};
+
 	const handleChange = (
 		optionName: keyof ArticleStateType,
 		option: OptionType
 	) => {
-		setFormParams({
-			...formParams,
+		setFormSettings({
+			...formSettings,
 			[optionName]: option,
 		});
 	};
 
 	const handleReset = () => {
-		setFormParams(defaultArticleState);
+		setFormSettings(defaultArticleState);
 		onReset();
+		setIsOpen(false);
 	};
 
 	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		onSubmit(formParams);
+		onSubmit(formSettings);
+		setIsOpen(false);
 	};
 
 	return (
-		<div ref={sidebarRef}>
+		<div ref={root}>
 			<ArrowButton isOpen={isOpen} onClick={onToggle} />
 			<aside
 				className={clsx(styles.container, { [styles.container_open]: isOpen })}>
@@ -82,7 +86,7 @@ export const ArticleParamsForm = ({
 					<Select
 						title={'Шрифт'}
 						options={fontFamilyOptions}
-						selected={formParams.fontFamilyOption}
+						selected={formSettings.fontFamilyOption}
 						onChange={(option: OptionType) => {
 							handleChange('fontFamilyOption', option);
 						}}
@@ -91,7 +95,7 @@ export const ArticleParamsForm = ({
 						title={'Размер шрифта'}
 						name={'font-size'}
 						options={fontSizeOptions}
-						selected={formParams.fontSizeOption}
+						selected={formSettings.fontSizeOption}
 						onChange={(option: OptionType) => {
 							handleChange('fontSizeOption', option);
 						}}
@@ -99,7 +103,7 @@ export const ArticleParamsForm = ({
 					<Select
 						title={'Цвет шрифта'}
 						options={fontColors}
-						selected={formParams.fontColor}
+						selected={formSettings.fontColor}
 						onChange={(option: OptionType) => {
 							handleChange('fontColor', option);
 						}}
@@ -108,7 +112,7 @@ export const ArticleParamsForm = ({
 					<Select
 						title={'Цвет фона'}
 						options={backgroundColors}
-						selected={formParams.backgroundColor}
+						selected={formSettings.backgroundColor}
 						onChange={(option: OptionType) => {
 							handleChange('backgroundColor', option);
 						}}
@@ -116,7 +120,7 @@ export const ArticleParamsForm = ({
 					<Select
 						title={'Ширина контента'}
 						options={contentWidthArr}
-						selected={formParams.contentWidth}
+						selected={formSettings.contentWidth}
 						onChange={(option: OptionType) => {
 							handleChange('contentWidth', option);
 						}}
